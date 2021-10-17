@@ -1,0 +1,723 @@
+# python
+
+![image-20211005125517467](C:\Users\south\AppData\Roaming\Typora\typora-user-images\image-20211005125517467.png)
+
+Python书写格式
+
+```python
+def main():
+    # Todo: Add your code here
+    pass
+
+
+if __name__ == '__main__':
+    main()
+```
+
+创建类
+
+```python
+class LOLer(object):
+    def __init__(self,name,age): #__init__是一个特殊方法，用于创建对象时
+        self.name =name
+        self.age = age
+    def play(self,heroes):
+        print('%s正在使用%s'%(self.name,heroes))
+lol1 = LOLer('张嘉文',55)
+lol1.play('黑帮教父')
+```
+
+## 多态
+
+```python
+from abc import ABCMeta,abstractmethod
+class loler(object,metaclass=ABCMeta):
+    '英雄联盟主播'
+    def __init__(self,name):
+        self._name = name
+    @abstractmethod
+    def make_voice(self):
+        '发出声音'
+        pass
+class zhangjiawen(loler):
+    '张嘉文'
+    def make_voice(self):
+        print('%s:确实够可以的'%self._name)
+class xuanshen(loler):
+    '炫神'
+    def make_voice(self):
+        print('%s:炫炫炫'%self._name)
+def main():
+    lolers = [zhangjiawen('张嘉文'),xuanshen('炫神')]
+    for loler in lolers:
+        loler.make_voice()
+if __name__ == '__main__':
+    main()
+```
+
+![image-20211006110138006](C:\Users\south\AppData\Roaming\Typora\typora-user-images\image-20211006110138006.png)
+
+### 文件只读，捕获异常
+
+```python
+def main():
+    f = None
+    try:
+        f = open('雀氏帅.txt','r',encoding='utf-8')
+        print(f.read())
+    except FileNotFoundError:
+        print('无法打开指定文件')
+    except LookupError:
+        print('指定了未知编码')
+    except UnicodeDecodeError:
+        print('解码错误')
+    finally:
+        if f:
+            f.close()
+if __name__ =='__main__':
+    main()
+```
+
+![image-20211006113209626](C:\Users\south\AppData\Roaming\Typora\typora-user-images\image-20211006113209626.png)
+
+### 多进程
+
+```python
+from multiprocessing import Process
+from os import getpid
+from random import randint
+from time import time, sleep
+
+
+def download_task(filename):
+    print('启动下载进程，进程号[%d].' % getpid())
+    print('开始下载%s...' % filename)
+    time_to_download = randint(5, 10)
+    sleep(time_to_download)
+    print('%s下载完成! 耗费了%d秒' % (filename, time_to_download))
+
+
+def main():
+    start = time()
+    p1 = Process(target=download_task, args=('Python从入门到住院.pdf', ))
+    p1.start()
+    p2 = Process(target=download_task, args=('Peking Hot.avi', ))
+    p2.start()
+    p1.join()
+    p2.join()
+    end = time()
+    print('总共耗费了%.2f秒.' % (end - start))
+```
+
+用Process类创建进程对象，target参数传入函数，args是元组，即函数参数，start方法启动进程，join方法等待进程结束。
+
+```python
+from socket import socket, SOCK_STREAM, AF_INET
+from datetime import datetime
+
+
+def main():
+    # 1.创建套接字对象并指定使用哪种传输服务
+    # family=AF_INET - IPv4地址
+    # family=AF_INET6 - IPv6地址
+    # type=SOCK_STREAM - TCP套接字
+    # type=SOCK_DGRAM - UDP套接字
+    # type=SOCK_RAW - 原始套接字
+    server = socket(family=AF_INET, type=SOCK_STREAM)
+    # 2.绑定IP地址和端口(端口用于区分不同的服务)
+    # 同一时间在同一个端口上只能绑定一个服务否则报错
+    server.bind(('192.168.1.2', 6789))
+    # 3.开启监听 - 监听客户端连接到服务器
+    # 参数512可以理解为连接队列的大小
+    server.listen(512)
+    print('服务器启动开始监听...')
+    while True:
+        # 4.通过循环接收客户端的连接并作出相应的处理(提供服务)
+        # accept方法是一个阻塞方法如果没有客户端连接到服务器代码不会向下执行
+        # accept方法返回一个元组其中的第一个元素是客户端对象
+        # 第二个元素是连接到服务器的客户端的地址(由IP和端口两部分构成)
+        client, addr = server.accept()
+        print(str(addr) + '连接到了服务器.')
+        # 5.发送数据
+        client.send(str(datetime.now()).encode('utf-8'))
+        # 6.断开连接
+        client.close()
+
+
+if __name__ == '__main__':
+    main()
+
+```
+
+#### Pillow处理图像
+
+```python
+from PIL import Image,ImageFilter
+image = Image.open('希里.jpg')
+image.filter(ImageFilter.SMOOTH_MORE).show()  #加滤镜
+```
+
+#### openpyxl读取和修改excel
+
+```python
+import  datetime
+from openpyxl import Workbook
+wb = Workbook()
+ws = wb.active
+ws['A1'] = 42
+ws.append([1,2,3])
+ws['A2']=datetime.datetime.now()
+ws['A10']=100
+wb.save('sample.xlsx')
+```
+
+#### 生成式(推导式用法)：用于生成列表集合字典
+
+```python
+prices = {
+    'AAPL': 191.88,
+    'GOOG': 1186.96,
+    'IBM': 149.24,
+    'ORCL': 48.44,
+}
+#价格大于100的股票构成新字典
+#格式 {key:value for key,value in prices.items() 条件表达式}
+prices2 = {key:value for key,value in prices.items() if value>100}
+print(prices2)
+```
+
+### 嵌套列表
+
+```python
+names = ['张嘉文','炫神','大司马','蛇哥']
+courses = ['补刀','推塔','段位']
+scores = [[None] * len(courses) for _ in range(len(names))]
+for row,name in enumerate(names):
+    for col,course in enumerate(courses):
+        scores[row][col] = float(input((f'请输入{name}的{course}成绩:')))
+        print(scores)
+```
+
+heapq模块(堆排序)
+
+```python
+#从列表中找出最大的或最小的N个元素   堆结构
+import  heapq
+list1 = [34, 25, 12, 99, 87, 63, 58, 78, 88, 92]
+list2 = [
+    {'name': 'IBM', 'shares': 100, 'price': 91.1},
+    {'name': 'AAPL', 'shares': 50, 'price': 543.22},
+    {'name': 'FB', 'shares': 200, 'price': 21.09},
+    {'name': 'HPQ', 'shares': 35, 'price': 31.75},
+    {'name': 'YHOO', 'shares': 45, 'price': 16.35},
+    {'name': 'ACME', 'shares': 75, 'price': 115.65}
+]
+print(heapq.nlargest(3,list1))   #找出3个最大的元素
+print(heapq.nsmallest(3,list1))  #找出3个最小的元素
+print(heapq.nlargest(2, list2, key=lambda x: x['shares'])) #找出三个share最大的元素，key = lambda x:x为固定格式，[]内的为排序的依据
+```
+
+### itertools 迭代工具
+
+```python
+import itertools
+print(itertools.permutations('张嘉文狐臭罢了')) #几个字的全排列
+print('---------------')
+print(itertools.combinations('张嘉文狐臭罢了',3))#几个字的7选3组合
+print('--------------------')
+print(itertools.product('ABCD','123')) #ABCD和123的笛卡儿积
+print('------------------------')
+print(itertools.cycle(('a','b','c'))) #abc的无限循坏序列
+for  i in itertools.permutations('张嘉文狐臭罢了'):   b
+    print(i);
+```
+
+Collect Counter 找出现频率最高的元素
+
+```python
+from collections import Counter
+words = [
+    'look', 'into', 'my', 'eyes', 'look', 'into', 'my', 'eyes',
+    'the', 'eyes', 'the', 'eyes', 'the', 'eyes', 'not', 'around',
+    'the', 'eyes', "don't", 'look', 'around', 'the', 'eyes',
+    'look', 'into', 'my', 'eyes', "you're", 'under'
+]
+counter = Counter(words)
+print(counter.most_common(5))
+```
+
+## lambda函数
+
+又称为匿名函数，临时使用
+
+```python
+lambda x,y:x+y   #冒号后面是函数的返回值，此函数功能是求和
+等同于
+def add(x,y):
+   return x+y    #冒号后是表达式，返回表达式
+lambad x,y:x<y
+等同于 
+def compare(x,y):
+    if x<y:
+        return True
+    else:
+        return False     #冒号后是判断式，返回布尔值
+```
+
+```python
+# def select_sort(items,comp = lambda x,y:x<y):
+#     """
+# 简单选择排序
+#     """
+#     items = items[:]  #复制列表
+#     for i in range(len(items)-1):
+#         min_index = i
+#         for j in range(i+1,len(items)):
+#             if comp(items[j],items[min_index]):
+#                 min_index = j
+#         items[i],items[min_index] = items[min_index],items[i]
+#     return items
+```
+
+```python
+def bubble_sort(items,comp = lambda x,y : x>y):
+    """
+    冒牌排序   依次比较相邻的两个元素，因为越小的元素会经由交换慢慢“浮”到数列的顶端（升序或降序排列），就如同碳酸饮料中二氧化碳的气泡最终会上浮到顶端一样，故名“冒泡排序”。
+    :param items:
+    :param comp:
+    """
+    # items1 = [5,10,50,100,500]
+    items = items[:]
+    for i in range(len(items)-1):
+        swapped = False
+        for j in range(len(items)-1-i):  #从最后开始比
+            if comp(items[j],items[j+1]):   #大的往后站
+                items[j],items[j+1] = items[j+1],items[j]
+                swapped = True
+        if not swapped:        #即swapped = false时停止，否则继续交换
+            break
+    return items
+```
+
+```python
+def bubble_sort(items,comp = lambda x,y:x>y):
+    """
+   搅拌排序  冒泡排序升级版 双向冒泡排序 鸡尾酒排序 减少外层循环次数
+    :param items:
+    :param comp:
+    """
+    items = items[:]
+    for i in range(len(items)-1):
+        swapped  =False
+        for j in range(len(items)-1-i):
+            if comp(items[j],items[j+1]):
+                items[j],items[j+1] = items[j+1],items[j]  #正向，把最大的放到最后
+                swapped = True
+        if swapped:
+            swapped = False
+            for j in range(len(items)-2-i,i,-1):
+                if comp(items[j-1],items[j]): #反向，把最小的放到最前
+                    items[j],items[j-1] = items[j-1],items[j]
+                    swapped = True
+        if not swapped:
+            break
+    return  items
+```
+
+### 合并排序？
+
+```python
+def seq_search(items,key):
+    """
+  顺序查找
+    """
+    for index,item in enumerate(items):  
+        if item ==key:
+            return index
+    return -1
+item1 = {'张嘉文':55,'炫神':66,'大司马':77}
+print(seq_search(item1,'炫神'))   #1
+```
+
+```python
+def bin_search(items,key):
+    """
+  折半查找
+    :param items:
+    :param key:
+    """
+    start,end =0,len(items-1)
+    while start <= end:
+        mid = (start + end) // 2
+        if key > items[mid]:
+            start = mid +1
+        elif key < items[mid]:
+            end = mid-1
+        else:
+            return mid
+    return -1
+```
+
+```python
+#穷举法 暴力求解法
+# 公鸡5元一只 母鸡3元一只 小鸡1元三只
+# 用100元买100只鸡 问公鸡/母鸡/小鸡各多少只
+for x in range(20):
+    for y in range(33):
+        z = 100 - x - y
+        if 5 * x + 3 * y + z//3 == 100 and z % 3 == 0:
+         print(x,y,z)
+# A、B、C、D、E五人在某天夜里合伙捕鱼 最后疲惫不堪各自睡觉
+# 第二天A第一个醒来 他将鱼分为5份 扔掉多余的1条 拿走自己的一份
+# B第二个醒来 也将鱼分为5份 扔掉多余的1条 拿走自己的一份
+# 然后C、D、E依次醒来也按同样的方式分鱼 问他们至少捕了多少条鱼
+fish = 6   #先假设🐟仅有6条，A拿走了1条，最极端的情况🐟仅有6条 
+while True:
+    total = fish
+    enough = True
+    for _ in range(5):      #5人 重复5次
+        if (total - 1) % 5 == 0:  #扔掉一条后恰好分为5份
+            total = (total - 1) // 5 * 4      #余下4份继续循环
+        else:
+            enough = False
+            break
+    if enough:
+        print(fish)
+        break
+    fish += 5  情况2：A拿走2条，扔掉多余1条，共11条 所以+5
+```
+
+```python
+'''动态规划：子列表元素之和的最大值'''
+'''子列表：列表种索引列徐的元素构成的列表，列表中的元素是int类型，
+程序输出列表中的元素，暑促子列表元素求和的最大值
+'''
+def main():
+    items = list(map(int,input().split()))
+    overall = partial =items[0]
+    for i in range(1,len(items)):
+        partial = max(items[i],partial+items[i])
+        overall = max(partial,overall)
+    print(overall)
+if __name__ =='__main__':
+    main()
+```
+
+# 看书知识点
+
+- ##### 3个引号可以多行输入
+
+- ##### r开头，raw，代表原始字符串字面量          117
+
+- ##### re模块，用于模式匹配  119
+
+- ##### list.sort(),对列表进行排序，按照字母或者数字大小，升序，仅能包含一种类型，否则报错
+
+- ##### python的一个优秀特性是支持任意的嵌套，如列表包含字典，字典再继续包含元组。可用于实现矩阵
+
+```python
+M2 = [[1,2,3],[4,5,6],[7,8,9],'雀氏帅']
+print(M2[2])    [7,8,9]
+print(M2[3][2])  帅  #对于字符串，然后按照索引取值
+print(M2[2][2])  9
+```
+
+- ##### 列表推导式，编写在方括号中，提醒你是在创建列表：[row[1]  for row in M]代表把矩阵M的每个row的索引为1的值取出来。推导式语法也可以用来创建字典和集合。
+
+- ```python
+  M1 = [[1,2,3],[4,5,6],[7,8,9]]
+  list1 = [row[2] for row in M1]                 #[3, 6, 9]
+  list2 = [M1[i][i] for i in [0,1,2]]            #[1, 5, 9]
+  list3 = [c * 2 for c in 'spams']          #['ss', 'pp', 'aa', 'mm', 'ss']
+  list5 = list(range(4))                         #[0, 1, 2, 3]
+  list6 = [[x ** 2,x ** 3] for x in range(4)]     #[[0, 0], [1, 1], [4, 8], [9, 27]]   
+  ```
+
+- ##### sum函数：求和  sum(list)，即对列表求和
+
+- ##### 字典不是序列，而是一种映射，字典是Python核心数据类型中唯一的映射类型，通过键存储对象，具有可变性，没有前后顺序。
+
+- ```python
+  #字典创建方式
+  D = {}
+  D['张嘉文'] = '狐臭'
+  D['雀氏帅'] = '黑帮教父'
+  print(D)                        #{'张嘉文': '狐臭', '雀氏帅': '黑帮教父'}
+  set1 = dict(张嘉文 = '狐臭',雀氏帅 = '黑帮教父',name = '天龙人')                             #{'张嘉文': '狐臭', '雀氏帅': '黑帮教父', 'name': '天龙人'}
+  set2 = dict(zip(['张嘉文','雀氏帅','name'],['狐臭','黑帮教父','天龙人']))
+    #{'张嘉文': '狐臭', '雀氏帅': '黑帮教父', 'name': '天龙人'}
+  # set1和set2等效，但set1更简洁，dict是用于创建字典的函数，zip用于键值配对
+  set3 = {
+      'name':{'first':'bob','last':'smith'}，
+      'job':['狐臭','炫神'],
+      'age':45         
+  }       #字典同样可以嵌套
+  print(set3['job'][1])                  #炫神
+  print(set3['name']['last'])            #smith    字典嵌套，通过键访问，列表嵌套通过索引访问。
+  ```
+
+- ##### 在访问字典中不存在的键是会出现错误，但我们不总是知道字典中存在什么键，这时有多种方法来避免出错
+
+- ```python
+  set3 = {
+      'name':{'first':'bob','last':'smith'},
+      'job':['狐臭','炫神'],
+      'age':45
+  } 
+  value = set3.get('ttt',10)              #10 方法1：get函数，有则输出键对应值，否则输出默认值
+  value2 = set3.get('job',20)              #['狐臭', '炫神']
+  value3 = set3['ttt'] if 'ttt' in set3 else 0       #0       方法2：in测试
+  ```
+
+- ##### 当字典中的元素需要强调某种顺序，可以使用sort方法和最新的sorted方法进行排序
+
+- ```python
+  #方法1
+  set1 = {'a':1,'qq':78,'c':2,'zt':3}
+  ks = list(set1.keys())
+  ks.sort()
+  for key in ks:
+      print(key,'=>',set1[key])       a => 1  c => 2  qq => 78  zt => 3
+  #方法2，sorted
+  for key in sorted(set1):
+      print(key,'=>',set1[key])
+  ```
+
+- ##### 任何一个从左到右扫描一个对象的Python工具都使用迭代协议。
+
+- ##### 元组，编写在()中，不可变，支持任意类型，任意嵌套和常见序列操作，且()可以省略
+
+- ```python
+  t = (1,2,3,4)
+  print(t.index(3))   #t.index()与t.count()都是元组特有方法，前者是返回对应索引值，后者是返回括号中的值出现了多少次
+  print(t.count(5))
+  t2 = 1,2,3,4   #元组的圆括号可以省略
+  ```
+
+- ##### 相比于列表，元组提供了一种完整性约束，这对于比我们所编写的更大型程序来说是方便的。
+
+- ##### 创建文件对象需要调用内置open函数，以字符串形式传递它一个外部的文件名以及可选的处理模式的字符串
+
+- ```python
+  f = open('data.text','w')   #设置为w模式时，会创建一个新文件
+  f.write('雀氏帅')
+  f.close()
+  t =open('data.text','r')   #默认模式是r，读取
+  print(t.read().split())    #无论文件包含的数据是什么类型，读取的总是字符串类型
+  ```
+
+- ##### 当一个文件的文本没有采用平台的默认编码格式，可以在读取时总结传入编码名参数避免乱码。
+
+- ```python
+  s = 'sp\xc4m'
+  file = open('tt.txt','w',encoding='utf-8')
+  file.write(s)
+  file.close()
+  text1 = open('tt.txt','r').read()      #sp脛m
+  text2 = open('tt.txt','r',encoding='utf-8').read()  #spÄm
+  print(text2)
+  print(text1)
+  ```
+
+- ##### 集合{}，不是映射也不是序列，是唯一的不可变的对象的无序集合，可以用set创建或集合字面量、表达式创建且支持一般的数据集合操作(交集并集差集等)，像一个没有键的字典，不能包含重复元素，集合是可迭代对象，可以增长或缩短。
+
+- ```python
+  x = {'雀','氏','帅'}   
+  y = set('雀氏纸尿裤')
+  z = {n*2 for n in range(4)}
+  print(x)                    #{'氏', '雀', '帅'}    说明集合是无序的      
+  print(y)                   #{'氏', '雀', '裤', '纸', '尿'}
+  print(z)                     #{0, 2, 4, 6} 字典可以推导式生成
+  print(x & y)                    #{'氏', '雀'}   交集
+  print(x.intersection(y))    #交集，同&
+  print(x | y)            #{'氏', '雀', '帅', '裤', '纸', '尿'}  并集
+  print(x - y)            #{'帅'}差集
+  print(x>y)                      #False   判断x是否为y的父集
+  x.add('st')
+  x.remove('dd')
+  x.upade(dd) 
+  #{}类型是字典，空集合必须用set()创建
+  print(type(set()))                 #<class 'set'>
+  print(type({}))                    #<class 'dict'>
+  #由于集合，因此不可嵌入列表和字典，可以嵌入元组
+  ```
+  
+- ##### 由于集合支持数据集合操作，集合经常用于处理过滤重复对象、分离集合间差异、进行非顺序的等价判断等任务。
+
+- ```python
+  print(list({1,2,3,2,3,5,6}))      #[1, 2, 3, 5, 6]
+  print(set('spam')-set('amt'))          #{'s', 'p'}
+  print(set('dad') == set('add'))        #True
+  ```
+
+- ##### python的小数和分数
+
+- ```python
+  import decimal
+  d = decimal.Decimal('3.1415926')        #decimal函数可以保持浮点数的精度不变
+  print(d+1)
+  a = decimal.Decimal('3.00')
+  b = decimal.Decimal('1.00')
+  print(b/a)
+  decimal.getcontext().prec = 2     #decimal.getcontext().prec作用是用decimal定义的树，运算后结果保留指定位数
+  print(b/a)
+  print(a/7)
+  from fractions import Fraction  
+  f = Fraction(2,3)             #Fraction函数用于定义分数
+  print(f + 1)
+  t = Fraction(8,3)
+  print(f+t)
+  ```
+
+- ##### type与isinstance函数，用于检查数据类型(类型检验会破坏灵活性，多态是python的思维方式)
+
+- ```python
+  list1 = [1,1,5]
+  print(type(list1))        #<class 'list'>
+  print(type(type(list1)))         #<class 'type'>
+  if type(list1) == type([]):
+      print('yes')
+  if type(list1) == list:
+      print('yes')
+  if isinstance(list1,list):
+      print('yes')
+  ```
+
+- ##### 用户定义类的基础知识
+
+- ```python
+  class Loler:
+      def __init__(self,name,age):   #__init__是初始函数，每个类都有，其中name和age称为状态信息
+          self.name = name          #隐藏的self对象是把这叫做面向对象模型的原因，一个类中的函数
+          self.age = age            #总有一个隐含的对象
+      def lastName(self):            #lastName和play都是方法    
+          return self.name.split()[-1]
+      def play(self):
+          return (self.name + '正在玩黑帮教父')
+  
+  a = Loler('张嘉文',55)     
+  b = Loler('waiver smith',40)
+  print(a.lastName())       #张嘉文  
+  print(b.lastName())          #smith
+  print(a.play())              #张嘉文正在玩黑帮教父
+  ```
+
+- ##### 数字
+
+- ```python
+   #进制问题
+  a = 0x11   #17 16进制，以0x或0X开头，后面接0-9和A-F    从右到左，以0次方开始依次计算。
+  b = 0o71   #57 8进制，以0o或0O开头，后面接0-7
+  c = 0b11   #3  2进制，以0b或0B开头，后面接0-1
+  d = 57
+  e = hex(d)   #0x39       hex(),以十六进制输出
+  f = oct(d)   #0o71       oct(),以八进制输出
+  g = bin(d)   #0b111001   bin()，以二进制输出
+  h = int('0x39',16) #57   int(字面量，进制),可将任意进制转换为十进制，字符串也可以转换为整数
+  t = eval('0x39')   #57   eval()与int类似，不需要指定进制，可直接转换，但速度较慢
+  
+  #混合类型向上转换,python首先将对象转换成最复杂的操作数的类型再运算，结果也是最复杂的操作数
+  print(3+)
+  
+  #python允许链式比较
+  print(2)
+  
+  #真除法/ 返回值总是浮点数   //整数法(截断除法)：返回类型取决于操作数类型，操作数是浮点数则返回浮点数，否则整数
+  print(5/4)  #1.25
+  print(5//4.0)   #1.0
+  print(5//4)    #1
+  
+  #对于正数来说截断和向下取整是相同的，对于负数来说，如果想获得趋于0的截断，可以引用math.trunc函数
+  print(5//-2)                          #-3
+  print(math.trunc(5/-2))               #-2
+  
+  #位运算
+  x = 1          #0001
+  print(x<<2)    #0010
+  print(x>>2)    #0000
+  print(x | 2)   #0001 | 0010 =0011
+  print(x & 2)   #0001 & 0010 =0000
+  
+  #x.bit_length()功能是查看一个数字用二进制表示时的位数
+  x = 99
+  s = bin(x)
+  print(s)
+  print(x.bit_length())
+  ```
+  
+- 常用的内置数值函数
+
+- ```python
+   import math
+   print(math.pi,math.e)                     #3.141592653589793 2.718281828459045
+   print(math.sin(30 * math.pi /180))        #0.49999999999999994
+   print(math.sqrt(9),sum((1,2,3,4)))        #3.0 10  注意sum函数内部必须传入序列
+   print(math.pow(2,4))                      # 16.0  幂运算
+   print(abs(-47.7),min(1,2,3),max(1,2,3))   #47.7 1 3
+   #Python去除小数部分的常用方法
+   print(math.floor(2.57),math.floor(-2.57))     #2 -3 floor()，向下取整
+   print(math.trunc(2.57),math.trunc(-2.57))     #2 -2 正数同floor(),负数向上取整
+   print(int(2.36),int(-2.36))                   #2 -2
+   print(round(2.57),round(-2.57),round(2.45，1))   #3 -3 2  四舍五入，注意0.50舍掉，第二位参数表示保留的位数
+   ```
+
+- ##### random
+
+- ```python
+   import random
+   print(random.random())          #随机输出一个0和1之间的浮点数
+   print(random.randint(5,100))     #两边都闭合，可以取到
+   print(random.choice(['ttt','zzz','sads','fasd']))   #随机选取列表中的一个
+   list1 = ['zjw','xuanshen','dsm']                        
+   random.shuffle(list1)       #打乱列表
+   ```
+
+### 动态类型
+
+- Python中类型是在运行时自动决定的而不是通过代码声明，意味没有必要事先声明变量，不在意特定的类型反而使它们的使用场景更广。这个概念对变量，对象和它们之间的关系都适用。
+
+- 变量是一个系统表的入口，包含了指向对象的连接。类型属于对象而不是变量。
+
+- 对象是被分配到的一块内存，有足够空间表示它们所表示的值。每个对象有两个标准的头部信息：类型标识符type designator标识这个对象的类型，引用的计数器reference counter 决定何时回收对象。
+
+- 引用是自动形成的从变量到对象的指针，每次运行一个表达式生成新值都会创建一个新对象(一块内存)表示这个值。
+
+- ```python
+  x = 3.14
+  x = [1,2,3] #python中，上一个被引用的对象占用的空间会被回收(没有被其他变量引用的话)，称为垃圾回收技术   此技术工作原理：每个对象有一个计数器，记录指向该对象的引用的数目，一旦归0，空间就被回收
+  a = 3
+  b = a  #此时a,b都指向对象3，这称为共享引用/共享对象
+  ```
+
+- 可变对象和操作会在原位置改变对象，导致引用对象的其他变量同时发生改变.
+
+- ```python
+  l1 = [1,2,3]
+  l2 = l1
+  l1[0] = 5
+  print(l1)          #[5, 2, 3]
+  print(l2)          #[5, 2, 3]
+  #如果不想此现象发生，即l2随着l1改变，可以复制对象，而不是引用。可以使用内置listh函数、copy模块或者从头到尾的切片。
+  l1 = [1,2,3]
+  l2 = l1[:]         #l2 = l1.copy()  /l2 = list(l1)    三种方法等效，切片最简洁。
+  l1[0] = 5
+  print(l1)          #[5, 2, 3]
+  print(l2)          #[1, 2, 3]   #此时l2是l1引用对象的一个副本而不是本身，因此不会改变。
+  #注意分片技术只能用于列表，字典和集合不能使用切片，因为他们是无序集合
+  ```
+
+- is 和 == 的区别 :==检测两者数值是否相等，is检测两者是否指向同一对象。
+
+- ```python
+  L = [1,2,3]
+  M = L
+  H = [1,2,3]
+  print(L == M,L is M)       #True True
+  print(L == H,L is H)       #True False
+  X = 5
+  Y = 5
+  print(X == Y,X is Y)      #特殊情况是对象是小的整数和字符串，此时由于小的整数和字符串会被缓存且复 用，因此二者指向了同一对象。
+  ```
+
+  
+
