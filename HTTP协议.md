@@ -47,6 +47,4 @@
 ### 4.链路层，又名数据链路层，网络接口层
 
 - 用来处理网络连接的硬件部分，包括控制操作系统、硬件的设备驱动、NIC(NetWork Interface Card,网络适配器，即网卡)及光纤等物理可见部分，硬件上的范畴均在链路层的作用范围之内。
-
-![image-20211020133559677](C:/Users/south/AppData/Roaming/Typora/typora-user-images/image-20211020133559677.png)
-
+- ![image-20211020150312043](http://r19kczb6x.hn-bkt.clouddn.com/img/image-20211020150312043.png)
