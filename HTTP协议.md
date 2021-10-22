@@ -438,3 +438,14 @@
 
 ### 5.Trailer
 
+- 用于事先说明报文主体后记录了哪些首部字段，可应用于HTTP/1.1版本分块传输编码时。
+
+### 6.Transfer-Encoding
+
+- 规定了传输报文主体时采用的编码方式。HTTP/1.1的传输编码方式仅对分块传输编码有效。
+
+### 7.Upgrade
+
+- 用于检测HTTP协议及其他协议是否可用更高版本进行通信，其参数值可用于指定一个完全不同的通信协议。
+- eg:Connection:Upgrade   Upgrade:TLS/1.0，Upgrade首部字段产生作用的Upgrade对象仅限于客户端和邻接服务器之间，因此使用Upgrade时需要额外指定Connection:Upgrade
+- 对于附有首部字段Upgrade的请求，服务器可用101 Switching Protocol状态码回应。
