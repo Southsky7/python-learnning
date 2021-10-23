@@ -449,3 +449,178 @@
 - 用于检测HTTP协议及其他协议是否可用更高版本进行通信，其参数值可用于指定一个完全不同的通信协议。
 - eg:Connection:Upgrade   Upgrade:TLS/1.0，Upgrade首部字段产生作用的Upgrade对象仅限于客户端和邻接服务器之间，因此使用Upgrade时需要额外指定Connection:Upgrade
 - 对于附有首部字段Upgrade的请求，服务器可用101 Switching Protocol状态码回应。
+
+### 8.Via
+
+- 用于追踪客户端和服务器之间的请求和响应报文的传输路径
+- 报文经过代理/网关时会在首部字段Via中附加该服务器的信息再转发，Via不仅用于追踪报文的转发，也可避免请求回环，所以经过代理时必须附加Via
+- eg:   Via:1.0 gw.hacker.hp(Squid/3.1)  其中1.0指接收请求的服务器的HTTP版本。
+- Via经常与TRACE方法一起用，如代理服务器收到TRACE方法发送的请求(Max-Forwards:0)，代理服务器就不能在转发该请求了，这种情况下代理服务器会将自身信息附加到Via后，返回该请求的响应。
+
+### 9.Warning
+
+- 用于告知用户一些与缓存相关问题的警告
+- 格式：Warning:[警告吗] [警告的主机:端口号] ''[警告内容]''([日期时间])
+
+## 请求首部字段
+
+### 1.Accept
+
+- 告知服务器用户代理能处理的媒体类型和媒体类型的相对优先级
+- eg:   Accept:text/plain;q=0.3,text/html
+- 文本文件:text/html,text/plain,text/css,application/xhtml+xml,application/xml
+- 图片文件:image/jpeg,image/gif,image/png
+- 视频文件:video/mpeg,video/quicktime
+- 应用程序使用的二进制文件:application/octet-stream,application/zip
+- 若想给显示的媒体类型增加优先级可以使用q=表示权重值，用分号;分隔，q范围0~1,1为最大值，默认为1，当提供多种内容时，首先返回q最大的。
+
+### 2.Accept-Charset
+
+- 用于通知服务器用户代理支持的字符集及其优先顺序，可指定多种字符集，q表示权重。
+- eg:Accept-Charset:iso-8859-5,unicode-1-1;q=0.8
+
+### 3.Accept-Encoding
+
+- 告知服务器用户代理支持的内容编码及其优先级，可指定多种，q表示权重，可用*指定任意编码格式。
+- eg:Accept-Encoding:gzip,deflate
+- 常见内容编码:
+  - gzip:由文件压缩程序gzip生成的编码格式
+  - compress，由UNIX文件压缩程序compress生成的编码格式。
+  - deflate,组成使用zlib格式和deflate压缩算法生成的编码格式。
+  - identify:不执行压缩或不会变化的默认编码格式
+
+### 4.Accept-Language
+
+- 用来告知服务器用户代理能够处理的自然语言集以及自然语言集的相对优先级，可一次性指定多种自然语言集。q表示权重
+- eg:Accept-Language:zh-cn,zh;q=0.7,en-us,en;q=0.3
+
+### 5.Authorization
+
+- 告知服务器用户代理的认证信息。通常想通过服务器认证的用户代理接到401状态码后，会把此字段加入请求中。
+- eg:Autorization:Basic dWVub3NlbjpwYXNzd29yza==
+
+### 6.Expect
+
+- 告知服务器期望出现的某种特定行为
+- eg:Expect:100-continue,等待状态码100响应的客户端发生请求时需指定此指令
+- 因服务器无法理解客户端期望作出回应而发生错误时会返回状态码417Expectation Failed
+
+### 7.From
+
+- 告知服务器使用用户代理的用户的邮寄地址。
+- eg:From:southsky1999@163.com
+- 使用代理时应尽量包含此字段。
+
+### 8.Host
+
+- 由于相同IP地址下回运行多个域名，Host用于明确指出请求的主机名。
+- Host首部字段是HTTP/1.1规范内唯一一个必须被包含在请求内的首部字段,若服务器为设定主机名，直接发送空值即可。
+- eg:Host:www.hackr.jp
+
+### 9.If-Match
+
+- if-xxx样式的请求首部字段称为条件请求，当服务器接到附带条件的请求时只有判断条件为真时才执行请求。
+- eg:If-Match:'123456'，服务器会对比此值和资源的ETag值，二者一致则执行请求否则返回状态码412 Precondition Failed。
+- 实体标记ETag:与特定资源关联的却导致，资源更新ETag也会随之更新。
+
+### 10.if-Modified-Since
+
+- 如果在此字段指定的日期后资源更新过，则服务器接受请求。否则返回304 Not Modified
+- 获取资源的更新日期时间可用首部字段Last-Modified来确定。
+
+### 11.If-None-Match
+
+- 与If-Match相反，指定值与ETag不一致则服务器处理请求。
+- 在GET和HEAD方法中使用此字段可获取最新的资源，与If-Modified-Since类似。
+
+### 12.If-Range
+
+- eg:If-Range:'123456'  Range:bytes=5001-10000
+- 告知服务器若指定If-Range值(ETag值或时间)和请求资源的ETag值或时间一致则作为范围请求处理，反之返回全体资源。
+
+### 13.If-Unmodified-Since
+
+- 与if-Modified-Since相反，只有指定的资源在指定日期之后未更新情况下服务器才处理请求，否则返回412 Precondition Failed
+- eg:if-UnModified-Since:Thu,03 Jul 2012 00:00:00 GMT
+
+### 14.Max-Forwards
+
+- 通过TRACE或OPTIONS方法发送首部字段Max-Forwards请求时，该字段指定了可经过的服务器的最大数目，每经过一个服务器，Max-Forwards值减1，当服务器接收到值为0时，直接返回响应。
+- 用于查找是哪台代理服务器出错了。
+
+### 15.Proxy-Authorization
+
+- 告诉服务器认证所需要的信息。发生在客户端和代理之间
+
+### 16.Range
+
+- 范围请求，成功则返回206 Partial Content，否则返回状态码200 OK和全部资源
+
+### 17.Referer
+
+- 告知服务器请求的原始资源的URI
+- eg:Referer:http://www.hacker.jp/index.htm
+
+### 18.TE
+
+- 告知服务器客户端能处理响应的传输编码方式和相对优先级，与Accept-Encoding相似，但用于传输编码。
+- eg:TE:gzip。deflate；q=0.5
+- TE还可用伴随trailer字段的分块传输编码的方式，TE:trailers
+
+### 19.User-Agent
+
+- 将创建请求的浏览器和用户代理名称等信息传达给服务器
+- 由网络爬虫发起请求时可能会在字段内添加爬虫作者的电子邮件地址，且当请求经过代理时，中间也可能被添加上代理服务器的名称。
+
+## 响应首部字段
+
+- 由服务器端想客户端返回响应报文中所使用的字段，用于补充响应的附加信息、服务器信息和对客户端的附加要求。
+
+### 1.Accept-Ranges
+
+- 告知客户端服务器能否处理范围请求，可处理则指定byes，否则none
+
+### 2.Age
+
+- 告知客户端源服务器在多久前创建了响应，单位s
+- 若创建该响应的服务器是缓存服务器，Age值指缓存后的响应再次发起认证到认证完成的时间值，代理创建响应时必须加上Age
+
+### 3.ETag实体标记
+
+- 将资源以字符串形式做唯一性标识的方式，服务器为每份资源分配对于的ETag值，当资源更新时ETag随之更新，ETag无统一算法规则，仅由服务器分配
+- 如使用中英文版的浏览器时二者URI一致，但需要返回各自对应的资源，此时用URI无法判断，就用ETag判断到底返回哪个资源。
+- ETag分为强ETag和弱ETag，前者是无论实体变化多么细微都会改值，后者仅用于提示资源是否相同，仅当资源发生根本改变才会该值，此时会在字段值开始处附加W/,如ETag:W/'usagi-1234'
+
+### 4.Location
+
+- 用于和客户端说明URI被转移，该字段会配合3xx:Redirection提供重定向的URI，几乎所有浏览器接收到Location都会强制性的访问新的URI
+
+### 5.Proxy-Authenticate
+
+- 把代理服务器要求的认证信息发给客户端。
+
+### 6.Retry-Afer
+
+- 告知客户端多久后再发送请求，主要配合状态码503 Service Unavailab或3xx Redirect一起。
+- 字段值可用是具体日期时间或者创建响应后的秒数
+
+### 7.Server
+
+- 告知客户端当前服务器上安装的HTTP服务器应用程序的信息，包括软件名称、版本号和安装时启用的可选项。
+- eg:Server:Apache/2.2.17(Unix)
+
+### 8.Vary
+
+- 控制缓存，如Vary:Accept:Language,代理服务器接收到源服务器的Vary后，若要进行缓存仅能对请求张含有相同Vary指定首部字段的请求返回缓存，否则只能从源服务器重新获取资源。
+
+### 9.WWW-Authenticate
+
+- 用于HTTP访问认证，告知客户端用于访问请求URI指定资源的认证方案(Basic或Digest)和带参数提示的质询(challenge)，状态码401Unauthorized响应肯定包含此字段。
+- eg:   WWW-Authenticate:Basic realm=''Usagidesign Auth''
+
+## 响应首部字段
+
+- 包含在请求报文和响应报文中的实体部分所用的首部，包含补充内容的更新时间等信息。
+
+### 1.Allow
+
