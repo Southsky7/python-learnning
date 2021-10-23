@@ -618,9 +618,82 @@
 - 用于HTTP访问认证，告知客户端用于访问请求URI指定资源的认证方案(Basic或Digest)和带参数提示的质询(challenge)，状态码401Unauthorized响应肯定包含此字段。
 - eg:   WWW-Authenticate:Basic realm=''Usagidesign Auth''
 
-## 响应首部字段
+## 实体首部字段
 
 - 包含在请求报文和响应报文中的实体部分所用的首部，包含补充内容的更新时间等信息。
 
 ### 1.Allow
 
+- 通知客户端能支持Request-URI指定资源的所有HTTP资源，当服务器接收到不支持的方法返回405 Method Not Allowed且把支持的所有HTTP方法写入首部字段Allow后返回
+- eg:Allow:GET,HEAD
+
+### 2.Content-Encoding
+
+- 告知客户端服务器对实体的主体部分选用的内容编码方式，内容编码是在不丢失实体信息前提下进行的压缩
+- 常用方式：gizp,compress,deflate,identity
+
+### 3.Content-Language
+
+- g告知客户端实体主体使用的自然语言
+
+### 4.Content-Lenght
+
+- 表明了实体主体部分的大小，进行内容编码时不能使用此字段
+
+### 5.Content-Location
+
+- 给出与报文主体对应URI，与Location不同，Content-Location表示的是报文主体返回资源对应的URI 
+
+### 6.Content-MD5
+
+- 由MD5算法生成的值，目的是检查报文主体传输过程中是否保存完整和确认传输到达。
+- 对报文主体执行MD5算法获得128为二进制数，在进行Base64编码后将结果写入此字段(HTTP首部不能记录二进制值所以需要编码)，客户端会再次对报文执行MD5算法，比较即可判断是否完整。
+- 此方法无法检测是否被恶意篡改，因为字段值也可以被改变。
+
+### 7.Content-Range
+
+- eg:Content-Range:bytes 5001-10000/10000
+- 告知客户端作为响应返回的实体的哪个部分符合范围要求
+
+### 8.Content-Type
+
+- eg:Content-Type:text/html;charset=UTF-8
+- 说明实体主体内对象的媒体类型
+
+### 9.Expires
+
+- 将资源失效日期告知客户端
+- 缓存服务器接收到包含此字段请求时会以缓存来应答请求，在指定时间前缓存副本一直保存，超出时间后缓存服务器会向源服务器请求资源
+- 首部字段Cache-Control的max-age指令优先级高于Expires
+
+### 10.Last-Modified
+
+- 资源最后被修改的时间
+
+# Cookie
+
+- Cookie工作机制是用户识别和状态管理，Web网站为了管理用户状态会通过Web浏览器把数据临时写入用户计算机内，当用户访问网站时可通过通信方式取回之前存放的Cookie
+- 调用Cookie时由于可校验Cookie的有效期，发送方的域、路径、协议等信息，因此正规发布的Cookie内的数据不会因攻击而泄露
+- 目前为止，Cookie的规格标准文档有4个：
+  - 网景公司颁布的规格标准，也是现在的主流标准
+  - RFC2109
+  - RFC2965
+  - RFC6264
+
+### 1.Set-Cookie
+
+- 服务器准备开始管理客户端状态时会事先告知各种信息。
+- expires:指定Cookie有效期，不指定则默认为浏览器关闭前，一旦Cookie从服务器发送到客户端，服务器端就不存在显式删除Cookie的方法，但可勇敢覆盖已过期Cookie事先实质性删除
+- path:限制指定Cookie的发送范围的文件目录，不过有方法可避开此机制
+- domain:通过此属性指定的域名可做到与结尾匹配一致，因此除了针对具体指定的多个域名发送Cookie外，不指定domain显得更安全。
+- secure，限制Web页面仅在HTTPS安全连接时才可发送Cookie。eg：Set-Cookie:name=value;secure,省略secure属性时，HTTP和HTTPS都会回收Cookie
+- HttpOnly：Cookie扩展功能，使JavaScript脚本无法获得Cookie，目的是防止跨站脚本攻击(Cross-site scripting,XSS)对Cookie信息窃取。eg:Set-Cookie：name=value;HttpOnly,设置此之后，从Web页面可读取Cookie，但从JS的document.cookie读取Cookie，但此扩展并非为了防止XSS而开发。
+
+## 2.Cookie
+
+- 告知服务器当客户端向获得HTTP状态管理支持时，就会在请求中包含从服务器接收到的Cookie，接收到多个Cookie时同样以多个Cookie形式发送
+
+## 其他首部字段
+
+- HTTP首部字段可自行扩展，以下是常用的非标准首部字段
+- 
