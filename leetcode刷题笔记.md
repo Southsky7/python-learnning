@@ -96,3 +96,23 @@ class MinStack(object):
 
 ```
 
+4.
+
+```python
+'''给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target  的那 两个 整数，并返回它们的数组下标。
+你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。
+你可以按任意顺序返回答案。
+输入：nums = [3,2,4], target = 6
+输出：[1,2]
+'''
+class Solution:
+    '''思路:第一循环，从下标为0的数开始，第二循环，下标为1的开始，依次相加，找到target就停止'''
+    def twoSum(self, nums: list[int], target: int) -> list[int]:
+        for i in range(len(nums)):
+            for j in range(i+1,len(nums)):
+                if nums[i] + nums[j] == target:
+                    return [i,j]
+#做法2 哈希表
+
+```
+
