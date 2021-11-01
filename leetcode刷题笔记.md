@@ -53,7 +53,7 @@ class CQueue:
             return self.B.pop()
 ```
 
-### 3
+### 3.栈实现队列
 
 ```python
 '''定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。'''
@@ -96,7 +96,7 @@ class MinStack(object):
 
 ```
 
-4.
+4.两数求和
 
 ```python
 '''给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target  的那 两个 整数，并返回它们的数组下标。
@@ -106,13 +106,22 @@ class MinStack(object):
 输出：[1,2]
 '''
 class Solution:
-    '''思路:第一循环，从下标为0的数开始，第二循环，下标为1的开始，依次相加，找到target就停止'''
+    '''
+    做法1:暴力求解   时间复杂度为O(n^2)
+    思路:第一循环，从下标为0的数开始，第二循环，下标为1的开始，依次相加，找到target就停止'''
     def twoSum(self, nums: list[int], target: int) -> list[int]:
         for i in range(len(nums)):
             for j in range(i+1,len(nums)):
                 if nums[i] + nums[j] == target:
                     return [i,j]
-#做法2 哈希表
-
+#做法2 哈希表  
+#对于值x，寻找哈希表是否存在target-x ，这样寻找target-x的复杂度由O(n)降为O(1)
+class Solution:
+    def twoSum(self, nums: list[int], target: int) -> list[int]:
+        hashtable = dict()   #python里用字典做哈希表，键值对应
+        for i,num in enumerate(nums):   #用enumerate同时查找键和下标  查找字典时是在
+            if target-num in hashtable:
+                return [hashtable[target-num],i]
+            hashtable[nums[i]] = i
 ```
 
