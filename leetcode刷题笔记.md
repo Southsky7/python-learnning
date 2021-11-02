@@ -125,3 +125,14 @@ class Solution:
             hashtable[nums[i]] = i
 ```
 
+5.输入某年某月某日，判断这一天是这一年的第几天？
+
+```python
+import datetime
+year = int(input('请输入4位数的年份'))
+month = int(input('输入月份'))
+day = int(input('输入是几号'))
+targetday = datetime.date(year,month,day)
+print(targetday-datetime.date(targetday.year-1,12,31))
+```
+
